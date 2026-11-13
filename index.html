@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101114">
+  <title>MAFIA: EMPIRE</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root { color-scheme: dark; --bg:#101114; --panel:#1a1c21; --muted:#9297a1; --gold:#d5ad62; --line:#30333b; --green:#54c69a; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:radial-gradient(ellipse at top,#29231b 0,#101114 48%); color:#f4f1eb; font:15px/1.4 system-ui,-apple-system,Segoe UI,sans-serif; padding:env(safe-area-inset-top) 14px calc(82px + env(safe-area-inset-bottom)); }
+    button,input { font:inherit; }
+    .top { display:flex; justify-content:space-between; align-items:center; padding:14px 2px 18px; }
+    .brand { font-weight:900; letter-spacing:2px; color:var(--gold); font-size:19px; }
+    .sub { color:var(--muted); font-size:11px; letter-spacing:1.4px; }
+    .balances { display:flex; gap:8px; }
+    .pill { background:#242329; border:1px solid #4a3d2b; padding:7px 10px; border-radius:12px; font-weight:700; color:var(--gold); }
+    .hero { min-height:155px; border:1px solid #55452d; border-radius:18px; padding:18px; background:linear-gradient(115deg,rgba(12,13,15,.94),rgba(40,31,22,.82)),url('https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=1200&q=80') center/cover; display:flex; flex-direction:column; justify-content:flex-end; box-shadow:0 12px 35px #0008; }
+    h1 { margin:0 0 5px; font-size:25px; letter-spacing:1px; }
+    .muted { color:var(--muted); }
+    .section { margin-top:19px; }
+    .section-title { display:flex; justify-content:space-between; align-items:center; margin:0 2px 10px; font-weight:800; }
+    .card { background:rgba(26,28,33,.94); border:1px solid var(--line); border-radius:16px; padding:14px; }
+    .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px; }
+    .stat { background:#202228; border-radius:12px; padding:11px 8px; text-align:center; }
+    .stat b { display:block; font-size:18px; color:var(--gold); }
+    .stat span { color:var(--muted); font-size:11px; }
+    .actions { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+    .action { background:#22242a; border:1px solid var(--line); border-radius:13px; color:#f5f1e9; padding:13px 10px; text-align:left; cursor:pointer; }
+    .action strong { display:block; margin-bottom:3px; }
+    .action small { color:var(--muted); }
+    .btn { border:0; border-radius:12px; padding:11px 14px; background:var(--gold); color:#17130d; font-weight:800; cursor:pointer; }
+    .btn.secondary { background:#30323a; color:#fff; border:1px solid #454852; }
+    .btn:disabled { opacity:.45; cursor:not-allowed; }
+    .row { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .unit { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 0; border-bottom:1px solid var(--line); }
+    .unit:last-child { border-bottom:0; }
+    .unit-icon { width:40px; height:40px; display:grid; place-items:center; background:#302a20; border-radius:11px; font-size:20px; }
+    .unit-info { flex:1; }
+    .unit-info b { display:block; }
+    .unit-info small { color:var(--muted); }
+    .tabs { position:fixed; z-index:5; bottom:0; left:0; right:0; padding:9px 8px calc(9px + env(safe-area-inset-bottom)); display:grid; grid-template-columns:repeat(4,1fr); background:#15161bee; backdrop-filter:blur(16px); border-top:1px solid var(--line); }
+    .tab { background:none; border:0; color:var(--muted); padding:6px 2px; font-size:11px; cursor:pointer; }
+    .tab.active { color:var(--gold); }
+    .tab span { display:block; font-size:19px; margin-bottom:2px; }
+    .page { display:none; } .page.active { display:block; }
+    .notice { color:var(--muted); font-size:12px; margin-top:10px; }
+    .field { width:100%; padding:12px; border:1px solid var(--line); border-radius:11px; background:#111318; color:white; margin:8px 0; }
+    .toast { position:fixed; left:14px; right:14px; bottom:88px; z-index:10; background:#30323a; border:1px solid #555; border-radius:12px; padding:12px; display:none; }
+    .empty { color:var(--muted); text-align:center; padding:20px 8px; }
+    .tag { font-size:10px; color:var(--green); border:1px solid #28674f; border-radius:20px; padding:3px 7px; }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div><div class="brand">MAFIA: EMPIRE</div><div class="sub">BUILD YOUR CRIME EMPIRE</div></div>
+    <div class="balances"><div class="pill">💵 <span id="cash">—</span></div><div class="pill">💎 <span id="gold">—</span></div></div>
+  </header>
+
+  <main>
+    <section id="home" class="page active">
+      <div class="hero">
+        <div class="sub">ТВОЯ ИМПЕРИЯ НАЧИНАЕТСЯ ЗДЕСЬ</div>
+        <h1 id="welcome">Добро пожаловать, босс</h1>
+        <div class="muted">Грейпорт · Старый город</div>
+      </div>
+      <div class="stats">
+        <div class="stat"><b id="level">1</b><span>Уровень</span></div>
+        <div class="stat"><b id="power">—</b><span>Сила банды</span></div>
+        <div class="stat"><b id="rep">0</b><span>Репутация</span></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Быстрые действия <span class="tag">ONLINE</span></div>
+        <div class="actions">
+          <button class="action" onclick="showPage('gang')"><strong>👥 Моя банда</strong><small>Бойцы и найм</small></button>
+          <button class="action" onclick="showPage('map')"><strong>🗺️ Карта города</strong><small>Районы и соперники</small></button>
+          <button class="action" onclick="showPage('business')"><strong>🏙️ Развитие базы</strong><small>Здания и бизнес</small></button>
+          <button class="action" onclick="showPage('profile')"><strong>🏆 Рейтинг</strong><small>Лидеры города</small></button>
+        </div>
+      </div>
+      <div class="section card">
+        <div class="section-title">Твоя первая задача</div>
+        <div class="row"><div><b>Усиль свою банду</b><div class="muted">Найми ещё одного бойца</div></div><button class="btn" onclick="showPage('gang')">Открыть</button></div>
+      </div>
+    </section>
+
+    <section id="gang" class="page">
+      <div class="section-title"><span>Моя банда</span><span class="tag" id="unit-count">0 бойцов</span></div>
+      <div class="card">
+        <div class="row"><b>Нанять бойца</b><span class="muted">За игровые деньги</span></div>
+        <select id="unit-type" class="field">
+          <option>Уличный боец</option><option>Громила</option><option>Боксёр</option><option>Стрелок</option><option>Ветеран</option>
+        </select>
+        <button class="btn" style="width:100%" onclick="recruit()">Нанять</button>
+      </div>
+      <div class="section card"><div class="section-title">Твои бойцы</div><div id="units"><div class="empty">Загрузка...</div></div></div>
+    </section>
+
+    <section id="map" class="page">
+      <div class="section-title">Карта регионов</div>
+      <div class="hero" style="min-height:120px"><div class="sub">ТЕКУЩИЙ РЕГИОН</div><h1>Грейпорт</h1><div class="muted">Промышленный портовый город</div></div>
+      <div class="section card">
+        <div class="section-title">Районы города</div>
+        <div class="unit"><div class="unit-icon">⚓</div><div class="unit-info"><b>Порт</b><small>Логистика · Средняя конкуренция</small></div><span class="tag">Свободен</span></div>
+        <div class="unit"><div class="unit-icon">🏭</div><div class="unit-info"><b>Промзона</b><small>Производство · Средняя конкуренция</small></div><span class="tag">Свободен</span></div>
+        <div class="unit"><div class="unit-icon">🌆</div><div class="unit-info"><b>Старый город</b><small>Бизнес · Низкая конкуренция</small></div><span class="tag">Старт</span></div>
+        <div class="unit"><div class="unit-icon">💎</div><div class="unit-info"><b>Центр</b><small>Элитный бизнес · Высокая конкуренция</small></div><span class="tag">Закрыт</span></div>
+      </div>
+      <div class="section card">
+        <b>Вызвать игрока на стрелку</b>
+        <input id="opponent" class="field" type="number" placeholder="Telegram ID соперника">
+        <button class="btn" style="width:100%" onclick="challenge()">Отправить вызов</button>
+        <div class="notice">Тестовая версия: бой рассчитывается автоматически сервером. Бойцы не погибают.</div>
+      </div>
+    </section>
+
+    <section id="business" class="page">
+      <div class="section-title">База и бизнес</div>
+      <div id="buildings" class="card"></div>
+      <div class="section card" style="margin-top:12px">
+        <b>Игровая экономика</b>
+        <p class="muted">В этой тестовой сборке здания можно улучшать за игровую валюту. Пассивный доход и полноценные предприятия будут добавлены следующим этапом.</p>
+      </div>
+    </section>
+
+    <section id="profile" class="page">
+      <div class="section-title">Профиль и рейтинг</div>
+      <div class="card">
+        <h2 id="profile-name">Босс</h2>
+        <div class="muted" id="profile-id">Telegram ID: —</div>
+        <div class="stats">
+          <div class="stat"><b id="profile-level">1</b><span>Уровень</span></div>
+          <div class="stat"><b id="profile-rep">0</b><span>Репутация</span></div>
+          <div class="stat"><b id="profile-power">0</b><span>Сила</span></div>
+        </div>
+      </div>
+      <div class="section card"><div class="section-title">Топ игроков</div><div id="leaderboard"><div class="empty">Загрузка...</div></div></div>
+    </section>
+  </main>
+
+  <nav class="tabs">
+    <button class="tab active" data-page="home" onclick="showPage('home')"><span>⌂</span>База</button>
+    <button class="tab" data-page="gang" onclick="showPage('gang')"><span>♟</span>Банда</button>
+    <button class="tab" data-page="map" onclick="showPage('map')"><span>⌖</span>Карта</button>
+    <button class="tab" data-page="business" onclick="showPage('business')"><span>▦</span>Бизнес</button>
+  </nav>
+  <div class="toast" id="toast"></div>
+
+<script>
+  // Set this to your deployed backend URL, without a trailing slash.
+  const API_URL = "https://YOUR_BACKEND_HOST";
+  const tg = window.Telegram?.WebApp;
+  let player = null;
+  let initData = tg?.initData || "";
+
+  if (tg) {
+    tg.ready();
+    tg.expand();
+    tg.setHeaderColor("#101114");
+    tg.setBackgroundColor("#101114");
+  }
+
+  function showToast(message) {
+    const el = document.getElementById("toast");
+    el.textContent = message;
+    el.style.display = "block";
+    setTimeout(() => el.style.display = "none", 3200);
+  }
+
+  function showPage(page) {
+    document.querySelectorAll(".page").forEach(x => x.classList.remove("active"));
+    document.getElementById(page).classList.add("active");
+    document.querySelectorAll(".tab").forEach(x => x.classList.toggle("active", x.dataset.page === page));
+    if (page === "profile") loadLeaderboard();
+  }
+
+  async function api(path, options = {}) {
+    if (!initData) throw new Error("Открой игру через Telegram-бота, чтобы авторизоваться.");
+    const response = await fetch(API_URL + path, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "tma " + initData,
+        ...(options.headers || {})
+      }
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.detail || "Ошибка сервера");
+    return data;
+  }
+
+  async function loadPlayer() {
+    try {
+      player = await api("/api/me");
+      renderPlayer();
+    } catch (e) {
+      showToast(e.message);
+      document.getElementById("welcome").textContent = "Открой игру через Telegram";
+    }
+  }
+
+  function renderPlayer() {
+    const p = player.profile;
+    document.getElementById("welcome").textContent = "Босс " + (p.first_name || "");
+    document.getElementById("cash").textContent = Number(p.cash).toLocaleString("ru-RU");
+    document.getElementById("gold").textContent = p.gold;
+    document.getElementById("level").textContent = p.level;
+    document.getElementById("power").textContent = player.power;
+    document.getElementById("rep").textContent = p.reputation;
+    document.getElementById("unit-count").textContent = player.units.length + " бойцов";
+    document.getElementById("profile-name").textContent = p.first_name || "Босс";
+    document.getElementById("profile-id").textContent = "Telegram ID: " + p.user_id;
+    document.getElementById("profile-level").textContent = p.level;
+    document.getElementById("profile-rep").textContent = p.reputation;
+    document.getElementById("profile-power").textContent = player.power;
+
+    document.getElementById("units").innerHTML = player.units.map(u => `
+      <div class="unit">
+        <div class="unit-icon">♟</div>
+        <div class="unit-info"><b>${escapeHtml(u.unit_type)}</b><small>Атака ${u.attack} · Защита ${u.defense} · HP ${u.hp}</small></div>
+      </div>`).join("") || '<div class="empty">Пока нет бойцов</div>';
+
+    const buildingNames = ["Штаб", "Казарма", "Арсенал", "Бизнес"];
+    document.getElementById("buildings").innerHTML = buildingNames.map(name => {
+      const b = player.buildings.find(x => x.building_type === name);
+      const level = b?.level || 0;
+      return `<div class="unit">
+        <div class="unit-icon">🏢</div>
+        <div class="unit-info"><b>${name}</b><small>Уровень ${level} / 10</small></div>
+        <button class="btn secondary" onclick="upgrade('${name}')">${level ? "Улучшить" : "Построить"}</button>
+      </div>`;
+    }).join("");
+  }
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  async function recruit() {
+    try {
+      const unit_type = document.getElementById("unit-type").value;
+      player = await api("/api/recruit", {method:"POST", body:JSON.stringify({unit_type})});
+      renderPlayer(); showToast("Боец нанят!");
+    } catch(e) { showToast(e.message); }
+  }
+
+  async function upgrade(building_type) {
+    try {
+      player = await api("/api/upgrade", {method:"POST", body:JSON.stringify({building_type})});
+      renderPlayer(); showToast(building_type + ": улучшение выполнено");
+    } catch(e) { showToast(e.message); }
+  }
+
+  async function challenge() {
+    try {
+      const opponent_id = Number(document.getElementById("opponent").value);
+      if (!opponent_id) throw new Error("Укажи Telegram ID соперника");
+      const result = await api("/api/challenge", {method:"POST", body:JSON.stringify({opponent_id})});
+      player = await api("/api/me");
+      renderPlayer();
+      showToast(`${result.message} · Сила ${result.attacker_power} : ${result.defender_power} · Награда ${result.reward}`);
+    } catch(e) { showToast(e.message); }
+  }
+
+  async function loadLeaderboard() {
+    try {
+      const data = await api("/api/leaderboard");
+      document.getElementById("leaderboard").innerHTML = data.players.map((p,i) => `
+        <div class="unit">
+          <div class="unit-icon">${i+1}</div>
+          <div class="unit-info"><b>${escapeHtml(p.first_name || p.username || "Игрок")}</b><small>Уровень ${p.level} · Репутация ${p.reputation}</small></div>
+        </div>`).join("") || '<div class="empty">Пока нет игроков</div>';
+    } catch(e) { document.getElementById("leaderboard").innerHTML = '<div class="empty">Не удалось загрузить рейтинг</div>'; }
+  }
+
+  loadPlayer();
+</script>
+</body>
+</html>
